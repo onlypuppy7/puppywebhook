@@ -1,4 +1,4 @@
-import PuppyWebhook from '../index.js';
+import PuppyWebhook from 'puppywebhook';
 
 const webhook = new PuppyWebhook({
     webhookUrl: "https://discord.com/api/webhooks/1460782220192256031/Fkibsumk3hWg4M6F2eCmDe_ylXaJlY_z3W9XeCMWbiw4r8zcYfQJg64YeIhaHT-7tpbT",

@@ -1,8 +1,9 @@
 {
   "name": "puppywebhook",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Queued, rate safe Discord webhook logger with automatic chunking",
   "type": "module",
+  "types": "./index.d.ts",
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js"
@@ -19,8 +20,5 @@
     "test": "node src/tests/test.js"
   },
   "author": "onlypuppy7",
-  "license": "MIT",
-  "dependencies": {
-    "node-fetch": "^3.3.2"
-  }
+  "license": "MIT"
 }

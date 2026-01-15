@@ -1,6 +1,20 @@
-import fetch from 'node-fetch';
+import fetch from 'node:fetch';
 
+/**
+ * A simple rate-limited Discord webhook sender.
+ */
 export class PuppyWebhook {
+    /**
+     * @param {Object} options
+     * @param {string} options.webhookUrl - The webhook URL to send messages to.
+     * @param {string} [options.username='puppywebhook'] - The username to display for messages.
+     * @param {string|null} [options.avatar=null] - The avatar URL to use for messages.
+     * @param {number} [options.maxMessageLength=1900] - Maximum message length before splitting.
+     * @param {number} [options.minDelay=5000] - Minimum delay between messages in ms.
+     * @param {number} [options.maxDelay=15000] - Maximum delay between messages in ms.
+     * @param {boolean} [options.logSends=false] - Whether to log sent messages.
+     * @param {boolean} [options.logErrors=true] - Whether to log errors when sending.
+     */
     constructor(options = {}) {
         this.webhookUrl = options.webhookUrl;
         this.username = options.username ?? 'puppywebhook';
@@ -25,6 +39,10 @@ export class PuppyWebhook {
         this.start();
     }
 
+    /**
+     * Queues a message to be sent to the webhook.
+     * @param {string} message
+     */
     send(message) {
         if (typeof message !== 'string') {
             message = String(message);
@@ -33,21 +51,32 @@ export class PuppyWebhook {
         this.logQueue.push(message);
     }
 
+    /** Starts the sending loop. */
     start() {
         if (this.interval) return;
         this.interval = setInterval(() => this._process(), this._nextDelay());
     }
 
+    /** Stops the sending loop. */
     stop() {
         if (!this.interval) return;
         clearInterval(this.interval);
         this.interval = null;
     }
 
+    /**
+     * Immediately processes all queued messages.
+     * @returns {Promise<void>}
+     */
     flush() {
         return this._process(true);
     }
 
+    /**
+     * Processes the message queue and sends chunks to the webhook.
+     * @param {boolean} [force=false] - Whether to force sending even if queue is empty.
+     * @private
+     */
     async _process(force = false) {
         while (this.logQueue.length > 0) {
             const msg = this.logQueue.shift();
@@ -102,6 +131,12 @@ export class PuppyWebhook {
         this._reschedule();
     }
 
+    /**
+     * Splits a string into chunks no longer than maxMessageLength.
+     * @param {string} str
+     * @returns {string[]}
+     * @private
+     */
     _split(str) {
         const chunks = [];
         for (let i = 0; i < str.length; i += this.maxMessageLength) {
@@ -110,12 +145,18 @@ export class PuppyWebhook {
         return chunks;
     }
 
+    /**
+     * Calculates the next delay before sending a chunk.
+     * @returns {number} Delay in milliseconds.
+     * @private
+     */
     _nextDelay() {
         const base = this.maxDelay - Math.min(this.queuedChunks.length, 7) * 1000;
         const jitter = (Math.floor(Math.random() * 8) - 4) * 1000;
         return Math.max(this.minDelay, base + jitter);
     }
 
+    /** Reschedules the sending loop with a new delay. @private */
     _reschedule() {
         if (!this.interval) return;
         clearInterval(this.interval);
