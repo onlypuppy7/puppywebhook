@@ -1,4 +1,4 @@
-import fetch from 'node:fetch';
+import fetch from 'node-fetch';
 
 /**
  * A simple rate-limited Discord webhook sender.
